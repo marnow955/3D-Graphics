@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Box {
+
     private int width;
     private int height;
     private int depth;
@@ -54,5 +55,69 @@ public class Box {
                 leftBottomPoint.getX(), topLineY, backLineZ));
         lines.add(new Line3D(rightLineX, topLineY, leftBottomPoint.getZ(),
                 rightLineX, topLineY, backLineZ));
+    }
+
+    public void moveHorizontal(double distance) {
+        for (Line3D line : lines) {
+            line.setStart(new Point3D(line.getStartX() + distance, line.getStartY(), line.getStartZ()));
+            line.setEnd(new Point3D(line.getEndX() + distance, line.getEndY(), line.getEndZ()));
+        }
+    }
+
+    public void moveVertical(double distance) {
+        for (Line3D line : lines) {
+            line.setStart(new Point3D(line.getStartX(), line.getStartY() + distance, line.getStartZ()));
+            line.setEnd(new Point3D(line.getEndX(), line.getEndY() + distance, line.getEndZ()));
+        }
+    }
+
+    public void moveZAxis(double distance) {
+        for (Line3D line : lines) {
+            line.setStart(new Point3D(line.getStartX(), line.getStartY(), line.getStartZ() + distance));
+            line.setEnd(new Point3D(line.getEndX(), line.getEndY(), line.getEndZ() + distance));
+        }
+    }
+
+    public void rotateX(double step) {
+        for (Line3D line : lines) {
+            line.setStart(new Point3D(line.getStartX(),
+                    (line.getStartZ() * Math.sin(step)) + (line.getStartY() * Math.cos(step)),
+                    (line.getStartZ() * Math.cos(step)) - (line.getStartY() * Math.sin(step))
+            ));
+            line.setEnd(new Point3D(line.getEndX(),
+                    (line.getEndZ() * Math.sin(step)) + (line.getEndY() * Math.cos(step)),
+                    (line.getEndZ() * Math.cos(step)) - (line.getEndY() * Math.sin(step))
+            ));
+        }
+    }
+
+    public void rotateY(double step) {
+        for (Line3D line : lines) {
+            line.setStart(new Point3D(
+                    (line.getStartX() * Math.cos(step)) - (line.getStartZ() * Math.sin(step)),
+                    line.getStartY(),
+                    (line.getStartX() * Math.sin(step)) + (line.getStartZ() * Math.cos(step))
+            ));
+            line.setEnd(new Point3D(
+                    (line.getEndX() * Math.cos(step)) - (line.getEndZ() * Math.sin(step)),
+                    line.getEndY(),
+                    (line.getEndX() * Math.sin(step)) + (line.getEndZ() * Math.cos(step))
+            ));
+        }
+    }
+
+    public void rotateZ(double step) {
+        for (Line3D line : lines) {
+            line.setStart(new Point3D(
+                    (line.getStartX() * Math.cos(step)) + (line.getStartY() * Math.sin(step)),
+                    ((-1) * line.getStartX() * Math.sin(step)) + (line.getStartY() * Math.cos(step)),
+                    line.getStartZ()
+            ));
+            line.setEnd(new Point3D(
+                    (line.getEndX() * Math.cos(step)) + (line.getEndY() * Math.sin(step)),
+                    ((-1) * line.getEndX() * Math.sin(step)) + (line.getEndY() * Math.cos(step)),
+                    line.getEndZ()
+            ));
+        }
     }
 }

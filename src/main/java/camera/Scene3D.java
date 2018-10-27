@@ -1,11 +1,12 @@
 package main.java.camera;
 
 import javafx.scene.Group;
-import javafx.scene.SubScene;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import main.java.camera.utils.Box;
 import main.java.camera.utils.Line3D;
 
@@ -13,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Scene3D {
-    Camera camera;
-    private SubScene scene;
+    private Camera camera;
+    private Scene scene;
     private Group root;
     private final Canvas canvas;
     private GraphicsContext gc;
@@ -22,9 +23,11 @@ public class Scene3D {
 
     public Scene3D(int width, int height) {
         root = new Group();
-        scene = new SubScene(root, width, height);
+        scene = new Scene(root, width, height);
         scene.setFill(Color.AQUA);
-        canvas = new Canvas(width, height);
+        canvas = new Canvas();
+        canvas.widthProperty().bind(scene.widthProperty());
+        canvas.heightProperty().bind(scene.heightProperty());
         gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.BLACK);
         root.getChildren().add(canvas);
@@ -32,7 +35,7 @@ public class Scene3D {
         camera = new Camera();
     }
 
-    public SubScene getScene3D() {
+    public Scene getScene3D() {
         return scene;
     }
 
@@ -41,9 +44,13 @@ public class Scene3D {
     }
 
     public void draw() {
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         for (Box box : boxes) {
-            for (Line3D line : box.getLines()) {
-                gc.strokeLine(line.getStart().getX(), line.getStart().getY(), line.getEnd().getX(), line.getEnd().getY());
+            for (Line3D line3D : box.getLines()) {
+                if (camera.isVisible(line3D.getStart()) || camera.isVisible(line3D.getEnd())) {
+                    Line line = line3D.toLine(camera.getFocalLength(), camera.getD(), canvas.getWidth(), canvas.getHeight());
+                    gc.strokeLine(line.getStartX(), line.getStartY(), line.getEndX(), line.getEndY());
+                }
             }
         }
     }
@@ -51,40 +58,72 @@ public class Scene3D {
     public void handleEvent(KeyCode code) {
         switch (code) {
             case DOWN:
-                camera.moveBackward();
+                for (Box box : boxes)
+                    box.moveVertical(Camera.STEP_TRANSLATION);
+                draw();
                 break;
             case UP:
-                camera.moveForward();
+                for (Box box : boxes)
+                    box.moveVertical(-Camera.STEP_TRANSLATION);
+                draw();
                 break;
             case LEFT:
-                camera.moveLeft();
+                for (Box box : boxes)
+                    box.moveHorizontal(Camera.STEP_TRANSLATION);
+                draw();
                 break;
             case RIGHT:
-                camera.moveRight();
+                for (Box box : boxes)
+                    box.moveHorizontal(-Camera.STEP_TRANSLATION);
+                draw();
+                break;
+            case ALT:
+                for (Box box : boxes)
+                    box.moveZAxis(Camera.STEP_TRANSLATION);
+                draw();
+                break;
+            case SPACE:
+                for (Box box : boxes)
+                    box.moveZAxis(-Camera.STEP_TRANSLATION);
+                draw();
                 break;
             case W:
-                camera.rotateUp();
+                for (Box box : boxes)
+                    box.rotateX(-Camera.STEP_ROTATE);
+                draw();
                 break;
             case S:
-                camera.rotateDown();
+                for (Box box : boxes)
+                    box.rotateX(Camera.STEP_ROTATE);
+                draw();
                 break;
             case A:
-                camera.rotateLeft();
+                for (Box box : boxes)
+                    box.rotateY(-Camera.STEP_ROTATE);
+                draw();
                 break;
             case D:
-                camera.rotateRight();
+                for (Box box : boxes)
+                    box.rotateY(Camera.STEP_ROTATE);
+                draw();
                 break;
-            case CONTROL:
-                camera.moveDown();
+            case Q:
+                for (Box box : boxes)
+                    box.rotateZ(Camera.STEP_ROTATE);
+                draw();
                 break;
-            case SHIFT:
-                camera.moveUp();
+            case E:
+                for (Box box : boxes)
+                    box.rotateZ(-Camera.STEP_ROTATE);
+                draw();
                 break;
-            case PLUS:
+            case PERIOD:
                 camera.zoomIn();
+                draw();
                 break;
-            case MINUS:
+            case COMMA:
                 camera.zoomOut();
+                draw();
                 break;
         }
     }
