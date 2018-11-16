@@ -17,22 +17,22 @@ public class Main extends Application {
         final int[] sphereVersion = {0};
         Scene3D scene3D = new Scene3D(SCENE_WIDTH, SCENE_HEIGHT);
         drawSphere(scene3D, Material.ODB_KIER.phong);
+        primaryStage.setTitle("ODB_KIER");
 
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
             switch (event.getCode()) {
                 case LEFT:
                     sphereVersion[0] = sphereVersion[0] == 0 ? 4 : sphereVersion[0] - 1;
-                    drawSphere(scene3D, Material.getMaterial(sphereVersion[0]).phong);
                     break;
                 case RIGHT:
                     sphereVersion[0] = sphereVersion[0] == 4 ? 0: sphereVersion[0] + 1;
-                    drawSphere(scene3D, Material.getMaterial(sphereVersion[0]).phong);
                     break;
             }
+            Material material = Material.getMaterial(sphereVersion[0]);
+            drawSphere(scene3D, material.phong);
+            primaryStage.setTitle(material.toString());
         });
 
-
-        primaryStage.setTitle("Virtual Camera");
         primaryStage.setScene(scene3D.getScene3D());
         primaryStage.show();
     }
